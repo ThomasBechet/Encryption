@@ -77,9 +77,9 @@ namespace CryptageTP
                 order[i] = sortedArray[i].position;
 
             // On remplit le tableau
-            int lineCount = message.Length / key.Length;
+            int columnCount = (int)(Math.Ceiling((double)(message.Length)/(double)(key.Length)));
 
-            char[] tab = new char[lineCount * key.Length];
+            char[] tab = new char[columnCount * key.Length];
             foreach (int index in order)
             {
 

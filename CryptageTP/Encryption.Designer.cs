@@ -37,7 +37,7 @@
             // 
             // Input_TextBox
             // 
-            this.Input_TextBox.Location = new System.Drawing.Point(12, 15);
+            this.Input_TextBox.Location = new System.Drawing.Point(13, 11);
             this.Input_TextBox.Multiline = true;
             this.Input_TextBox.Name = "Input_TextBox";
             this.Input_TextBox.Size = new System.Drawing.Size(776, 169);
