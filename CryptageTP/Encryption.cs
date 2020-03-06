@@ -79,11 +79,22 @@ namespace CryptageTP
             // On remplit le tableau
             int columnCount = (int)(Math.Ceiling((double)(message.Length)/(double)(key.Length)));
 
-            char[] tab = new char[columnCount * key.Length];
-            foreach (int index in order)
-            {
+            Console.WriteLine(columnCount);
 
+            char[] tab = new char[columnCount * key.Length];
+            int c = 0;
+            foreach (int indexOrder in order)
+            {
+                for(int indexColumn = 0; indexColumn < columnCount; indexColumn++)
+                {
+                    tab[indexColumn * key.Length + indexOrder] = message[c++];
+                    if (c >= message.Length) break;
+                }
             }
+
+            
+
+            Input_TextBox.Text = new string(tab);
         }
     }
 }
