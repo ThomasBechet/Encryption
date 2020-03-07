@@ -19,28 +19,34 @@ namespace CryptageTP
 
         private void Encrypt_Button_Click(object sender, EventArgs e)
         {
-            Encrypt(Key_TextBox.Text, Input_TextBox.Text);
+            if (Key_TextBox.Text != "")
+            {
+                Encrypt(Key_TextBox.Text, Input_TextBox.Text);
+            }
         }
         private void Decrypt_Button_Click(object sender, EventArgs e)
         {
-            Decrypt(Key_TextBox.Text, Output_TextBox.Text);
+            if (Key_TextBox.Text != "")
+            {
+                Decrypt(Key_TextBox.Text, Output_TextBox.Text);
+            }
         }
 
-        private struct Pair
+        private struct CharacterPositionPair
         {
             public char character;
             public int position;
         }
 
-        private void Encrypt(string key, string message)
+        private int[] GetOrderArray(string key)
         {
             // On détermine les positions des lettres de la clé
             int[] order = new int[key.Length];
 
-            Pair[] sortedArray = new Pair[key.Length];
+            CharacterPositionPair[] sortedArray = new CharacterPositionPair[key.Length];
             for (int i = 0; i < key.Length; i++)
             {
-                sortedArray[i] = new Pair();
+                sortedArray[i] = new CharacterPositionPair();
                 sortedArray[i].character = key[i];
                 sortedArray[i].position = i;
             }
@@ -49,52 +55,73 @@ namespace CryptageTP
             for (int i = 0; i < key.Length; i++)
                 order[i] = sortedArray[i].position;
 
-            // On remplit le tableau avec le message
-            string[] tab = new string[key.Length];
-            for (int i = 0; i < message.Length; i++)
-                tab[i % key.Length] += message[i];
-
-            // On lit le tableau colonne par colonne
-            Output_TextBox.Text = "";
-            foreach (int index in order)
-                Output_TextBox.Text += tab[index];
+            return order;
         }
-        private void Decrypt(string key, string message)
+
+        private string EncryptMessage(string key, string message)
         {
-            // On détermine les positions des lettres de la clé
-            int[] order = new int[key.Length];
+            // Ajout du caractère de fin
+            message += '@';
 
-            Pair[] sortedArray = new Pair[key.Length];
-            for (int i = 0; i < key.Length; i++)
+            int[] order = GetOrderArray(key);
+
+            int columnLength = (int)(Math.Ceiling((double)(message.Length) / (double)(key.Length)));
+
+            char[] tab = new char[columnLength * key.Length];
+            for (int i = 0; i < tab.Length; i++)
+                tab[i] = ' ';
+
+            for (int i = 0; i < message.Length; i++)
+                tab[i] = message[i];
+
+            string output = "";
+            foreach (int orderIndex in order)
             {
-                sortedArray[i] = new Pair();
-                sortedArray[i].character = key[i];
-                sortedArray[i].position = i;
-            }
-            sortedArray = sortedArray.OrderBy(item => item.character).ToArray();
-
-            for (int i = 0; i < key.Length; i++)
-                order[i] = sortedArray[i].position;
-
-            // On remplit le tableau
-            int columnCount = (int)(Math.Ceiling((double)(message.Length)/(double)(key.Length)));
-
-            Console.WriteLine(columnCount);
-
-            char[] tab = new char[columnCount * key.Length];
-            int c = 0;
-            foreach (int indexOrder in order)
-            {
-                for(int indexColumn = 0; indexColumn < columnCount; indexColumn++)
+                for (int i = 0; i < columnLength; i++)
                 {
-                    tab[indexColumn * key.Length + indexOrder] = message[c++];
-                    if (c >= message.Length) break;
+                    output += tab[i * key.Length + orderIndex];
                 }
             }
 
-            
+            return output;
+        }
 
-            Input_TextBox.Text = new string(tab);
+        private string DecryptMessage(string key, string message)
+        {
+            int[] order = GetOrderArray(key);
+
+            // On remplit le tableau
+            int columnLength = (int)(Math.Ceiling((double)(message.Length) / (double)(key.Length)));
+
+            char[] tab = new char[columnLength * key.Length];
+
+            int orderIndex = 0;
+            int columnIndex = 0;
+            foreach (char c in message)
+            {
+                if (columnIndex >= columnLength || c == '@')
+                {
+                    orderIndex++;
+                    columnIndex = 0;
+                }
+
+                if (c != '@')
+                {
+                    tab[order[orderIndex] + columnIndex * key.Length] = c;
+                    columnIndex++;
+                }
+            }
+
+            return new string(tab);
+        }
+
+        private void Encrypt(string key, string message)
+        {
+            Output_TextBox.Text = EncryptMessage(key, message);
+        }
+        private void Decrypt(string key, string message)
+        {
+            Input_TextBox.Text = DecryptMessage(key, message);
         }
     }
 }
