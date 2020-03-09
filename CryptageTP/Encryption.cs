@@ -32,6 +32,8 @@ namespace CryptageTP
             }
         }
 
+        readonly char EndCharacter = 'उ';
+
         private struct CharacterPositionPair
         {
             public char character;
@@ -61,7 +63,7 @@ namespace CryptageTP
         private string EncryptMessage(string key, string message)
         {
             // Ajout du caractère de fin
-            message += '@';
+            message += EndCharacter;
 
             int[] order = GetOrderArray(key);
 
@@ -99,13 +101,13 @@ namespace CryptageTP
             int columnIndex = 0;
             foreach (char c in message)
             {
-                if (columnIndex >= columnLength || c == '@')
+                if (columnIndex >= columnLength || c == EndCharacter)
                 {
                     orderIndex++;
                     columnIndex = 0;
                 }
 
-                if (c != '@')
+                if (c != EndCharacter)
                 {
                     tab[order[orderIndex] + columnIndex * key.Length] = c;
                     columnIndex++;
